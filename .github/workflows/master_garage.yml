@@ -25,10 +25,14 @@ jobs:
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
+
+      - name: Install EF Core CLI
+        run: dotnet tool install --global dotnet-ef --version 10.0.10
+
       - name: Apply EF Core migrations
         env:
           ConnectionStrings__DefaultConnection: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}
-        run: dotnet ef database update
+        run: dotnet ef database update --project GarageV3/GarageV3.csproj --startup-project GarageV3/GarageV3.csproj
 
       - name: dotnet publish
         run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
