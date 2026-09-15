@@ -109,33 +109,12 @@ dotnet ef migrations add <MigrationName>
 dotnet ef database update
 ```
 
-## CI/CD
 
-The project is being prepared for Continuous Integration and Continuous Delivery.
-
-The planned workflow is:
-
-```text
-Git Push
-   ↓
-Build
-   ↓
-Test
-   ↓
-Publish
-   ↓
-Deploy
-   ↓
-Azure
-```
 
 ## Project Status
 
-Garage 3.0 is a school project developed as part of the **Lexicon .NET development program**.
 
 The project focuses on ASP.NET Core MVC, Entity Framework Core, relational database design, authentication, authorization, business logic and CI/CD.
 
 ```
 
-**Den här versionen är mycket närmare exakt den stil du visade på bilden.** Den kommer att renderas med stor titel, tydliga rubriker, punktlistor och snygga kodblock på GitHub.
-```
