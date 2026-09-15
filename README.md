@@ -1,6 +1,6 @@
 
 
-```
+
 # Garage 3.0
 
 A web-based parking management system developed as a school project at Lexicon.
