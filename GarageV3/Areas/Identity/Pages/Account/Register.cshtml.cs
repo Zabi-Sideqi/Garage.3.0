@@ -1,0 +1,253 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using GarageV3.Data;
+using GarageV3.Models.Enums;
+using GarageV3.Validation;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Text.Encodings.Web;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace GarageV3.Areas.Identity.Pages.Account;
+
+public class RegisterModel : PageModel
+{
+    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IUserStore<ApplicationUser> _userStore;
+    private readonly IUserEmailStore<ApplicationUser> _emailStore;
+    private readonly ILogger<RegisterModel> _logger;
+    private readonly IEmailSender _emailSender;
+
+    public RegisterModel(
+        UserManager<ApplicationUser> userManager,
+        IUserStore<ApplicationUser> userStore,
+        SignInManager<ApplicationUser> signInManager,
+        ILogger<RegisterModel> logger,
+        IEmailSender emailSender)
+    {
+        _userManager = userManager;
+        _userStore = userStore;
+        _emailStore = GetEmailStore();
+        _signInManager = signInManager;
+        _logger = logger;
+        _emailSender = emailSender;
+    }
+
+    /// <summary>
+    ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
+    [BindProperty]
+    public InputModel Input { get; set; } = default!;
+
+    /// <summary>
+    ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
+    public string? ReturnUrl { get; set; }
+
+    /// <summary>
+    ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
+    public IList<AuthenticationScheme>? ExternalLogins { get; set; }
+
+    /// <summary>
+    ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
+    public class InputModel : IValidatableObject
+    {
+        /// <summary>
+        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+       
+        
+            [Required(ErrorMessage = "First name is required.")]
+            [StringLength(50, ErrorMessage = "First name cannot exceed 50 characters.")]
+            [Display(Name = "First Name")]
+            public string FirstName { get; set; } = string.Empty;
+
+            [Required(ErrorMessage = "Username is required.")]
+            [StringLength(50, ErrorMessage = "Username cannot exceed 50 characters.")]
+            [Display(Name = "User name")]
+            public string UserName { get; set; } = string.Empty;
+
+            [Required(ErrorMessage = "Last name is required.")]
+            [StringLength(50, ErrorMessage = "Last name cannot exceed 50 characters.")]
+            [Display(Name = "Last Name")]
+            public string LastName { get; set; } = string.Empty;
+
+            [Required(ErrorMessage = "Personal identity number is required.")]
+            [ValidPersonalIdentityNumber]
+            [Display(Name = "Personal Identity Number")]
+            public string PersonalIdentityNumber { get; set; } = string.Empty;
+
+            [Required]
+            [EmailAddress]
+            [Display(Name = "Email")]
+            public string Email { get; set; } = default!;
+
+            [Required]
+            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [DataType(DataType.Password)]
+            [Display(Name = "Password")]
+            public string Password { get; set; } = default!;
+
+            [DataType(DataType.Password)]
+            [Display(Name = "Confirm password")]
+            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            public string? ConfirmPassword { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            var firstName = FirstName?.Trim();
+            var lastName = LastName?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(firstName) &&
+                !string.IsNullOrWhiteSpace(lastName) &&
+                string.Equals(firstName, lastName, StringComparison.OrdinalIgnoreCase))
+            {
+                yield return new ValidationResult(
+                    "First name and last name cannot be identical.",
+                    new[] { nameof(LastName) }
+                );
+            }
+        }
+    }
+
+
+        public async Task OnGetAsync(string? returnUrl = null)
+    {
+        ReturnUrl = returnUrl;
+        ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+    }
+
+    public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
+    {
+        returnUrl ??= Url.Content("~/");
+        ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+        if (ModelState.IsValid)
+        {
+            string normalizedPin = NormalizePersonalIdentityNumber(Input.PersonalIdentityNumber);
+            bool pinExists = await _userManager.Users.AnyAsync(u => u.PersonalIdentityNumber == normalizedPin);
+            if (pinExists)
+            {
+                ModelState.AddModelError("Input.PersonalIdentityNumber", "Personal identity number is already registered.");
+                return Page();
+            }
+
+            var user = CreateUser();
+            user.UserName = Input.UserName;
+            user.FirstName = Input.FirstName;
+            user.LastName = Input.LastName;
+            user.PersonalIdentityNumber = normalizedPin;
+            user.EmailConfirmed = true; // If EmailConfirmed is false, Identity silently skips generating the token. 
+
+            // UserStory13: Set pro-membership for new users in 30 days
+            var now = DateTime.UtcNow;
+
+            var today = now.Date;
+            var dateOfBirth = DateTime.ParseExact(normalizedPin.Substring(0, 8), "yyyyMMdd", null);
+            var age = today.Year - dateOfBirth.Year;
+            if (dateOfBirth.Date > today.AddYears(-age))
+            {
+                age--;
+            }
+
+            user.MembershipType = MembershipType.Pro;
+            user.MembershipStartDate = now;
+            user.MembershipEndDate = age >= 65 ? now.AddYears(2) : now.AddDays(30);
+
+            await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
+            await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+            var result = await _userManager.CreateAsync(user, Input.Password);
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("User created a new account with password.");
+
+                var userId = await _userManager.GetUserIdAsync(user);
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                var callbackUrl = Url.Page(
+                    "/Account/ConfirmEmail",
+                    pageHandler: null,
+                    values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                    protocol: Request.Scheme)!;
+
+                await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                // Assign default Member role automatically
+                await _userManager.AddToRoleAsync(user, "Member");
+
+                if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                {
+                    return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                }
+                else
+                {
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return LocalRedirect(returnUrl);
+                }
+            }
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+        }
+
+        // If we got this far, something failed, redisplay form
+        return Page();
+    }
+
+    private ApplicationUser CreateUser()
+    {
+        try
+        {
+            return Activator.CreateInstance<ApplicationUser>();
+        }
+        catch
+        {
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
+        }
+    }
+
+    private IUserEmailStore<ApplicationUser> GetEmailStore()
+    {
+        if (!_userManager.SupportsUserEmail)
+        {
+            throw new NotSupportedException("The default UI requires a user store with email support.");
+        }
+        return (IUserEmailStore<ApplicationUser>)_userStore;
+    }
+
+    private static string NormalizePersonalIdentityNumber(string input)
+    {
+        string cleaned = input.Replace("-", "").Replace("+", "").Trim();
+        if (cleaned.Length == 12)
+        {
+            return $"{cleaned[..8]}-{cleaned[8..]}";
+        }
+        return input;
+    }
+}
