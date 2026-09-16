@@ -3,9 +3,24 @@
 @{
     ViewData["Title"] = "Vehicle Details";
 
-    var typeName = Model.VehicleTypeRef != null ? (Model.VehicleTypeRef.Icon + " " + Model.VehicleTypeRef.Name) : "Unknown";
-	var bageColor = Model.VehicleTypeRef != null ? Model.VehicleTypeRef.BadgeColor : "#6c757d"; // Default to gray
-	var badgeTextColor = Model.VehicleTypeRef != null ? Model.VehicleTypeRef.BadgeTextColor : "#ffffff"; // Default to white
+    var typeName = Model.VehicleTypeRef != null
+        ? (Model.VehicleTypeRef.Icon + " " + Model.VehicleTypeRef.Name)
+        : "Unknown";
+
+    var bageColor = Model.VehicleTypeRef != null
+        ? Model.VehicleTypeRef.BadgeColor
+        : "#6c757d";
+
+    var badgeTextColor = Model.VehicleTypeRef != null
+        ? Model.VehicleTypeRef.BadgeTextColor
+        : "#ffffff";
+
+    // Convert stored UTC time to Swedish time (Europe/Stockholm).
+    var stockholmTimeZone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
+
+    var registeredTime = TimeZoneInfo.ConvertTimeFromUtc(
+        DateTime.SpecifyKind(Model.ArrivalTime, DateTimeKind.Utc),
+        stockholmTimeZone);
 }
 
 <div class="container">
@@ -23,7 +38,9 @@
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
                                 <h4 class="m-2 mt-0">@Model.RegistrationNumber</h4>
-                                <span class="sv-badge" style="background-color:@bageColor; color:@badgeTextColor;">
+
+                                <span class="sv-badge"
+                                      style="background-color:@bageColor; color:@badgeTextColor;">
                                     @typeName
                                 </span>
                             </div>
@@ -31,19 +48,29 @@
 
                         <dl class="row mb-0 gy-2">
                             <dt class="col-5 sv-label">Color</dt>
-                            <dd class="col-7 mb-0">@(string.IsNullOrEmpty(Model.Color) ? "-" : Model.Color)</dd>
+                            <dd class="col-7 mb-0">
+                                @(string.IsNullOrEmpty(Model.Color) ? "-" : Model.Color)
+                            </dd>
 
                             <dt class="col-5 sv-label">Brand</dt>
-                            <dd class="col-7 mb-0">@(string.IsNullOrEmpty(Model.Brand) ? "-" : Model.Brand)</dd>
+                            <dd class="col-7 mb-0">
+                                @(string.IsNullOrEmpty(Model.Brand) ? "-" : Model.Brand)
+                            </dd>
 
                             <dt class="col-5 sv-label">Model</dt>
-                            <dd class="col-7 mb-0">@(string.IsNullOrEmpty(Model.Model) ? "-" : Model.Model)</dd>
+                            <dd class="col-7 mb-0">
+                                @(string.IsNullOrEmpty(Model.Model) ? "-" : Model.Model)
+                            </dd>
 
                             <dt class="col-5 sv-label">Wheels</dt>
-                            <dd class="col-7 mb-0">@Model.NumberOfWheels</dd>
+                            <dd class="col-7 mb-0">
+                                @Model.NumberOfWheels
+                            </dd>
 
                             <dt class="col-5 sv-label">Registered Time</dt>
-                            <dd class="col-7 mb-0">@Model.ArrivalTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
+                            <dd class="col-7 mb-0">
+                                @registeredTime.ToString("yyyy-MM-dd HH:mm")
+                            </dd>
                         </dl>
 
                         <hr />
@@ -53,7 +80,9 @@
                                 &larr; Back
                             </a>
 
-                            <a asp-action="Edit" asp-route-id="@Model?.Id" class="sv-back-link">
+                            <a asp-action="Edit"
+                               asp-route-id="@Model?.Id"
+                               class="sv-back-link">
                                 Edit &rarr;
                             </a>
                         </div>
