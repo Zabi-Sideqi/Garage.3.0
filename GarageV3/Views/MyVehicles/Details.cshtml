@@ -43,7 +43,7 @@
                             <dd class="col-7 mb-0">@Model.NumberOfWheels</dd>
 
                             <dt class="col-5 sv-label">Registered Time</dt>
-                            <dd class="col-7 mb-0">@Model.ArrivalTime.ToString("yyyy-MM-dd HH:mm")</dd>
+                            <dd class="col-7 mb-0">@Model.ArrivalTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
                         </dl>
 
                         <hr />
