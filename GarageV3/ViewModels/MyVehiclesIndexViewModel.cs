@@ -8,8 +8,7 @@
         public string Model { get; set; } = string.Empty;
         public string Color { get; set; } = string.Empty;
         public int NumberOfWheels { get; set; }
-        public DateTime ArrivalTime { get; set; }
-
+        //public DateTime ArrivalTime { get; set; }
         public string VehicleTypeName { get; set; } = string.Empty;
         public string VehicleTypeIcon { get; set; } = string.Empty;
         public string BadgeColor { get; set; } = string.Empty;

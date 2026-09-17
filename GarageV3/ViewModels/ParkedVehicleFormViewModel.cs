@@ -18,9 +18,9 @@ namespace GarageV3.ViewModels
         [Display(Name = "Registration Number")]
         public string RegistrationNumber { get; set; } = string.Empty;
 
-        [Display(Name = "Arrival Time")]
-        [DisplayFormat(DataFormatString = "{0:dddd, yyyy-MM-dd HH:mm}", ApplyFormatInEditMode = true)]
-        public DateTime ArrivalTime { get; set; } // readonly in Edit
+        //[Display(Name = "Arrival Time")]
+        //[DisplayFormat(DataFormatString = "{0:dddd, yyyy-MM-dd HH:mm}", ApplyFormatInEditMode = true)]
+        //public DateTime ArrivalTime { get; set; } // readonly in Edit
 
         [StringLength(20, ErrorMessage = "Color cannot be longer than 20 characters.")]
         [Display(Name = "Color (Max 20 Character)")]

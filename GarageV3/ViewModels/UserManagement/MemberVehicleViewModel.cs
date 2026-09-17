@@ -11,7 +11,10 @@
         public string Model { get; set; } = string.Empty;
         public int NumberOfWheels { get; set; }
 
-        public DateTime ArrivalTime { get; set; }
+        /// <summary>
+        /// Gets or sets the arrival time of the vehicle.
+        /// </summary>
+        //public DateTime ArrivalTime { get; set; }
         public int? ParkingSpotNumber { get; set; }
     }
 }

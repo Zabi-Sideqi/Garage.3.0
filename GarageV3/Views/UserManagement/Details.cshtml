@@ -61,7 +61,7 @@
                         <th>Model</th>
                         <th>Color</th>
                         <th>Wheels</th>
-                        <th>Arrival Time</th>
+                        @* <th>Arrival Time</th> *@
                         <th>Parking Spot</th>
                     </tr>
                 </thead>
@@ -78,7 +78,7 @@
                             <td>@vehicle.Model</td>
                             <td>@vehicle.Color</td>
                             <td>@vehicle.NumberOfWheels</td>
-                            <td>@vehicle.ArrivalTime.ToString("yyyy-MM-dd HH:mm")</td>
+                            @* <td>@vehicle.ArrivalTime.ToString("yyyy-MM-dd HH:mm")</td> *@
                             <td>
                                 @(vehicle.ParkingSpotNumber.HasValue
                                     ? $"#{vehicle.ParkingSpotNumber}"

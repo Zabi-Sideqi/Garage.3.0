@@ -185,7 +185,6 @@ public class UserManagementController : Controller
                         Brand = vehicle.Brand,
                         Model = vehicle.Model,
                         NumberOfWheels = vehicle.NumberOfWheels,
-                        ArrivalTime = vehicle.ArrivalTime,
                         ParkingSpotNumber = _context.ParkingSessions
                             .Where(s => s.VehicleId == vehicle.Id && s.CheckOutTime == null)
                             .Select(s => (int?)s.ParkingSpotId)

@@ -130,16 +130,16 @@ public static class DbInitializer
 
         var vehiclesToSeed = new List<Vehicle>
         {
-            new Vehicle { VehicleTypeRefId = typesByName["Car"], OwnerId = adminUser.Id, RegistrationNumber = "ABC123", Color = "Black", Brand = "Volvo", Model = "XC60", NumberOfWheels = 4, ArrivalTime = DateTime.UtcNow.AddHours(-3) },
-            new Vehicle { VehicleTypeRefId = typesByName["Motorcycle"], OwnerId = adminUser.Id, RegistrationNumber = "KTM555", Color = "Orange", Brand = "KTM", Model = "Duke 390", NumberOfWheels = 2, ArrivalTime = DateTime.UtcNow.AddDays(-1) },
-            new Vehicle { VehicleTypeRefId = typesByName["Bus"], OwnerId = adminUser.Id, RegistrationNumber = "BUS010", Color = "Red", Brand = "Scania", Model = "Citywide", NumberOfWheels = 6, ArrivalTime = DateTime.UtcNow.AddHours(-8) },
-            new Vehicle { VehicleTypeRefId = typesByName["Truck"], OwnerId = adminUser.Id, RegistrationNumber = "TRK777", Color = "Blue", Brand = "Volvo", Model = "FH16", NumberOfWheels = 10, ArrivalTime = DateTime.UtcNow.AddDays(-2) },
-            new Vehicle { VehicleTypeRefId = typesByName["Bicycle"], OwnerId = adminUser.Id, RegistrationNumber = "BIK111", Color = "Yellow", Brand = "Crescent", Model = "Kebne", NumberOfWheels = 2, ArrivalTime = DateTime.UtcNow.AddMinutes(-30) },
-            new Vehicle { VehicleTypeRefId = typesByName["Airplane"], OwnerId = adminUser.Id, RegistrationNumber = "SAS901", Color = "White", Brand = "Airbus", Model = "A320neo", NumberOfWheels = 3, ArrivalTime = DateTime.UtcNow.AddHours(-15) },
-            new Vehicle { VehicleTypeRefId = typesByName["Boat"], OwnerId = adminUser.Id, RegistrationNumber = "BOA999", Color = "White", Brand = "Buster", Model = "Magnum", NumberOfWheels = 0, ArrivalTime = DateTime.UtcNow.AddHours(-12) },
-            new Vehicle { VehicleTypeRefId = typesByName["Car"], OwnerId = adminUser.Id, RegistrationNumber = "XYZ789", Color = "White", Brand = "Tesla", Model = "Model Y", NumberOfWheels = 4, ArrivalTime = DateTime.UtcNow.AddHours(-5) },
-            new Vehicle { VehicleTypeRefId = typesByName["Car"], OwnerId = adminUser.Id, RegistrationNumber = "MLB442", Color = "Grey", Brand = "Volkswagen", Model = "Golf", NumberOfWheels = 4, ArrivalTime = DateTime.UtcNow.AddMinutes(-45) },
-            new Vehicle { VehicleTypeRefId = typesByName["Car"], OwnerId = adminUser.Id, RegistrationNumber = "SWE999", Color = "Silver", Brand = "Polestar", Model = "Polestar 2", NumberOfWheels = 4, ArrivalTime = DateTime.UtcNow.AddHours(-2) }
+            new Vehicle { VehicleTypeRefId = typesByName["Car"], OwnerId = adminUser.Id, RegistrationNumber = "ABC123", Color = "Black", Brand = "Volvo", Model = "XC60", NumberOfWheels = 4, },
+            new Vehicle { VehicleTypeRefId = typesByName["Motorcycle"], OwnerId = adminUser.Id, RegistrationNumber = "KTM555", Color = "Orange", Brand = "KTM", Model = "Duke 390", NumberOfWheels = 2, },
+            new Vehicle { VehicleTypeRefId = typesByName["Bus"], OwnerId = adminUser.Id, RegistrationNumber = "BUS010", Color = "Red", Brand = "Scania", Model = "Citywide", NumberOfWheels = 6, },
+            new Vehicle { VehicleTypeRefId = typesByName["Truck"], OwnerId = adminUser.Id, RegistrationNumber = "TRK777", Color = "Blue", Brand = "Volvo", Model = "FH16", NumberOfWheels = 10,},
+            new Vehicle { VehicleTypeRefId = typesByName["Bicycle"], OwnerId = adminUser.Id, RegistrationNumber = "BIK111", Color = "Yellow", Brand = "Crescent", Model = "Kebne", NumberOfWheels = 2,},
+            new Vehicle { VehicleTypeRefId = typesByName["Airplane"], OwnerId = adminUser.Id, RegistrationNumber = "SAS901", Color = "White", Brand = "Airbus", Model = "A320neo", NumberOfWheels = 3,},
+            new Vehicle { VehicleTypeRefId = typesByName["Boat"], OwnerId = adminUser.Id, RegistrationNumber = "BOA999", Color = "White", Brand = "Buster", Model = "Magnum", NumberOfWheels = 0,},
+            new Vehicle { VehicleTypeRefId = typesByName["Car"], OwnerId = adminUser.Id, RegistrationNumber = "XYZ789", Color = "White", Brand = "Tesla", Model = "Model Y", NumberOfWheels = 4,},
+            new Vehicle { VehicleTypeRefId = typesByName["Car"], OwnerId = adminUser.Id, RegistrationNumber = "MLB442", Color = "Grey", Brand = "Volkswagen", Model = "Golf", NumberOfWheels = 4,},
+            new Vehicle { VehicleTypeRefId = typesByName["Car"], OwnerId = adminUser.Id, RegistrationNumber = "SWE999", Color = "Silver", Brand = "Polestar", Model = "Polestar 2", NumberOfWheels = 4, }
         };
 
         await context.Vehicles.AddRangeAsync(vehiclesToSeed);

@@ -60,7 +60,6 @@ public class MyVehiclesController : Controller
                 Model = v.Model,
                 Color = v.Color,
                 NumberOfWheels = v.NumberOfWheels,
-                ArrivalTime = v.ArrivalTime,
                 VehicleTypeName = v.VehicleTypeRef != null
                     ? v.VehicleTypeRef.Name
                     : "Unknown",
@@ -149,8 +148,8 @@ public class MyVehiclesController : Controller
                     Color = viewModel.Color ?? string.Empty,
                     Brand = viewModel.Brand ?? string.Empty,
                     Model = viewModel.Model ?? string.Empty,
-                    NumberOfWheels = viewModel.NumberOfWheels.GetValueOrDefault(),
-                    ArrivalTime = DateTime.Now
+                    NumberOfWheels = viewModel.NumberOfWheels.GetValueOrDefault()
+                    
                 };
 
                 _context.Vehicles.Add(vehicle);
@@ -210,7 +209,7 @@ public class MyVehiclesController : Controller
             Brand = vehicle.Brand,
             Model = vehicle.Model,
             NumberOfWheels = vehicle.NumberOfWheels,
-            ArrivalTime = vehicle.ArrivalTime,
+            
             IsParked = isParked,
 
             VehicleTypes = await _context.VehicleTypes

@@ -15,12 +15,6 @@
         ? Model.VehicleTypeRef.BadgeTextColor
         : "#ffffff";
 
-    // Convert stored UTC time to Swedish time (Europe/Stockholm).
-    var stockholmTimeZone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
-
-    var registeredTime = TimeZoneInfo.ConvertTimeFromUtc(
-        DateTime.SpecifyKind(Model.ArrivalTime, DateTimeKind.Utc),
-        stockholmTimeZone);
 }
 
 <div class="container">
@@ -67,10 +61,7 @@
                                 @Model.NumberOfWheels
                             </dd>
 
-                            <dt class="col-5 sv-label">Registered Time</dt>
-                            <dd class="col-7 mb-0">
-                                @registeredTime.ToString("yyyy-MM-dd HH:mm")
-                            </dd>
+      
                         </dl>
 
                         <hr />

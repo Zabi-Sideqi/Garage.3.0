@@ -24,7 +24,10 @@ namespace GarageV3.ViewModels
 
         public int? ActiveParkingSessionId { get; set; }
 
-        public DateTime? ArrivalTime { get; set; }
+        /// <summary>
+        /// Gets or sets the arrival time of the vehicle.
+        /// </summary>
+       // public DateTime? ArrivalTime { get; set; }
 
         public string DisplayVehicleType => $"{VehicleTypeIcon} {VehicleTypeName}";
 

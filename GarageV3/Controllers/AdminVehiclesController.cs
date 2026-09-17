@@ -51,7 +51,7 @@ public class AdminVehiclesController : Controller
                 Brand = v.Brand,
                 Model = v.Model,
                 Color = v.Color,
-                ArrivalTime = v.ArrivalTime,
+      
                 VehicleTypeName = v.VehicleTypeRef != null ? v.VehicleTypeRef.Name : "Unknown",
                 VehicleTypeIcon = v.VehicleTypeRef != null ? v.VehicleTypeRef.Icon : "Unknown",
 
@@ -100,7 +100,7 @@ public class AdminVehiclesController : Controller
             Model = vehicle.Model,
             Color = vehicle.Color,
             NumberOfWheels = vehicle.NumberOfWheels,
-            ArrivalTime = vehicle.ArrivalTime,
+         
             VehicleTypeName = vehicle.VehicleTypeRef?.Name ?? "Unknown",
             VehicleTypeIcon = vehicle.VehicleTypeRef?.Icon ?? "Unknown",
             BadgeColor = vehicle.VehicleTypeRef?.BadgeColor ?? "Unknown",
@@ -180,7 +180,7 @@ public class AdminVehiclesController : Controller
                     Brand = viewModel.Brand ?? string.Empty,
                     Model = viewModel.Model ?? string.Empty,
                     NumberOfWheels = viewModel.NumberOfWheels.GetValueOrDefault(),
-                    ArrivalTime = DateTime.Now
+                    
                 };
 
                 _context.Vehicles.Add(vehicle);
@@ -240,7 +240,7 @@ public class AdminVehiclesController : Controller
             Brand = vehicle.Brand,
             Model = vehicle.Model,
             NumberOfWheels = vehicle.NumberOfWheels,
-            ArrivalTime = vehicle.ArrivalTime,
+           
             OwnerId = vehicle.OwnerId,
             IsParked = isParked,
 
@@ -415,7 +415,7 @@ public class AdminVehiclesController : Controller
             Model = vehicle.Model,
             Color = vehicle.Color,
             NumberOfWheels = vehicle.NumberOfWheels,
-            ArrivalTime = vehicle.ArrivalTime,
+         
             VehicleTypeName = vehicle.VehicleTypeRef?.Name ?? "Unknown",
             VehicleTypeIcon = vehicle.VehicleTypeRef?.Icon ?? "Unknown",
             BadgeColor = vehicle.VehicleTypeRef?.BadgeColor ?? "Unknown",
