@@ -40,18 +40,22 @@ namespace GarageV3.Services
         {
             var session = await _context.ParkingSessions
                 .Include(ps => ps.Vehicle)
-                    .ThenInclude(v => v.Owner)
+                    .ThenInclude(v => v!.Owner)
                 .Include(ps => ps.Vehicle)
-                    .ThenInclude(v => v.VehicleTypeRef)
+                    .ThenInclude(v => v!.VehicleTypeRef)
                 .Include(ps => ps.ParkingSpot)
                 .FirstOrDefaultAsync(ps => ps.Id == sessionId);
 
-            if (session is null || session.CheckOutTime != null || session.Vehicle is null || session.Vehicle.Owner is null)
+            var vehicle = session?.Vehicle;
+            var owner = vehicle?.Owner;
+
+            if (session is null || session.CheckOutTime != null || vehicle is null || owner is null)
             {
                 return null;
             }
 
             var checkOutTime = DateTime.UtcNow;
+
             // Ensure arrivalTime is treated as UTC if passed as unspecified
             var utcArrival = session.ArriveTime.Kind == DateTimeKind.Unspecified
                 ? DateTime.SpecifyKind(session.ArriveTime, DateTimeKind.Utc)
@@ -59,7 +63,12 @@ namespace GarageV3.Services
 
             session.CheckOutTime = checkOutTime;
 
-            var feeResult = _garageFeeService.CalculateDetailedFee(utcArrival, checkOutTime, session.HourlyRateAtCheckIn, session.Vehicle.Owner.IsProMember);
+            var feeResult = _garageFeeService.CalculateDetailedFee(
+                utcArrival,
+                checkOutTime,
+                session.HourlyRateAtCheckIn,
+                owner.IsProMember);
+
             session.AppliedDiscountPercentage = feeResult.DiscountPercentage;
             session.TotalPrice = feeResult.TotalPrice;
 

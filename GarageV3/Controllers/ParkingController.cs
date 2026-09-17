@@ -126,27 +126,33 @@ namespace GarageV3.Controllers
         public async Task<IActionResult> History()
         {
             var currentUser = await _userManager.GetUserAsync(User);
+
             if (currentUser == null)
             {
                 return Challenge();
             }
 
             var historySessions = await _context.ParkingSessions
-                .Include(ps => ps.Vehicle)
-                    .ThenInclude(v => v.VehicleTypeRef)
-                .Include(ps => ps.ParkingSpot)
-                .Where(ps => ps.CheckOutTime != null && ps.Vehicle != null && ps.Vehicle.Owner != null && ps.Vehicle.Owner.Id == currentUser.Id)
+                .Where(ps =>
+                    ps.CheckOutTime != null &&
+                    ps.OwnerIdAtCheckIn == currentUser.Id)
                 .OrderByDescending(ps => ps.CheckOutTime)
                 .Select(ps => new ParkingHistoryViewModel
                 {
                     SessionId = ps.Id,
-                    RegistrationNumber = (ps.Vehicle != null && ps.Vehicle.RegistrationNumber != null) ? ps.Vehicle.RegistrationNumber : string.Empty,
-                    VehicleTypeName = (ps.Vehicle != null && ps.Vehicle.VehicleTypeRef != null) ? ps.Vehicle.VehicleTypeRef.Name : "Unknown",
-                    VehicleTypeIcon = (ps.Vehicle != null && ps.Vehicle.VehicleTypeRef != null) ? ps.Vehicle.VehicleTypeRef.Icon : "Unknown",
-                    RequiredSpots = (ps.Vehicle != null && ps.Vehicle.VehicleTypeRef != null) ? ps.Vehicle.VehicleTypeRef.RequiredSpots : 0,
-                    ParkingSpotId = (ps.ParkingSpot != null) ? ps.ParkingSpot.Id : -1,
+
+                    // Vehicle snapshot
+                    RegistrationNumber = ps.RegistrationNumberAtCheckIn,
+                    VehicleTypeName = ps.VehicleTypeNameAtCheckIn,
+                    VehicleTypeIcon = ps.VehicleTypeIconAtCheckIn,
+                    RequiredSpots = ps.RequiredSpotsAtCheckIn,
+
+                    // Parking information
+                    ParkingSpotId = ps.ParkingSpotId,
                     ArrivalTime = ps.ArriveTime,
-                    CheckOutTime = (ps.CheckOutTime != null) ? ps.CheckOutTime.Value : DateTime.MinValue,
+                    CheckOutTime = ps.CheckOutTime ?? DateTime.MinValue,
+
+                    // Price information
                     HourlyRateAtCheckIn = ps.HourlyRateAtCheckIn,
                     TotalPrice = ps.TotalPrice ?? 0
                 })
@@ -248,9 +254,9 @@ namespace GarageV3.Controllers
             var session = await _context.ParkingSessions
                 .Where(ps => ps.CheckOutTime == null && ps.Vehicle != null)
                 .Include(ps => ps.Vehicle)
-                    .ThenInclude(v => v.Owner)
+                    .ThenInclude(v => v!.Owner)
                 .Include(ps => ps.Vehicle)
-                    .ThenInclude(v => v.VehicleTypeRef)
+                    .ThenInclude(v => v!.VehicleTypeRef)
                 .Include(ps => ps.ParkingSpot)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(ps => ps.Id == id);
@@ -383,49 +389,56 @@ namespace GarageV3.Controllers
             return View(receipt);
         }
 
+
         // GET: Parking/PrintReceipt
         [HttpGet]
         public async Task<IActionResult> PrintReceipt(int id)
         {
             var currentUser = await _userManager.GetUserAsync(User);
+
             if (currentUser == null)
             {
                 return Challenge();
             }
 
             var session = await _context.ParkingSessions
-                .Where(ps => ps.CheckOutTime != null && ps.Vehicle != null)
-                .Include(ps => ps.Vehicle)
-                    .ThenInclude(v => v!.Owner)
-                .Include(ps => ps.Vehicle)
-                    .ThenInclude(v => v!.VehicleTypeRef)
+                .Where(ps =>
+                    ps.Id == id &&
+                    ps.CheckOutTime != null &&
+                    ps.OwnerIdAtCheckIn == currentUser.Id)
                 .Include(ps => ps.ParkingSpot)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(ps => ps.Id == id);
+                .FirstOrDefaultAsync();
 
-            if (session == null || session.Vehicle == null)
+            if (session == null)
             {
-                TempData["ErrorMessage"] = "Unable to print receipt. The parking session was not found or is not checked out yet.";
-                return RedirectToAction(nameof(History));
-            }
-            if (session.Vehicle.Owner == null || session.Vehicle.Owner.Id != currentUser.Id)
-            {
-                TempData["ErrorMessage"] = "You are not allowed to print others' receipt.";
+                TempData["ErrorMessage"] =
+                    "Unable to print receipt. The parking session was not found, is not checked out yet, or does not belong to you.";
+
                 return RedirectToAction(nameof(History));
             }
 
             var receiptViewModel = new ReceiptViewModel
             {
-                OwnerEmail = session.Vehicle.Owner?.Email ?? "No Owner",
-                VehicleTypeName = session.Vehicle.VehicleTypeRef?.Name ?? "Unknown",
-                RegistrationNumber = session.Vehicle.RegistrationNumber,
-                Brand = session.Vehicle.Brand,
-                Model = session.Vehicle.Model,
-                Color = session.Vehicle.Color,
-                NumberOfWheels = session.Vehicle.NumberOfWheels,
+                OwnerEmail = string.IsNullOrWhiteSpace(session.OwnerEmailAtCheckIn)
+                    ? "No Owner"
+                    : session.OwnerEmailAtCheckIn,
+
+                VehicleTypeName = string.IsNullOrWhiteSpace(session.VehicleTypeNameAtCheckIn)
+                    ? "Unknown"
+                    : session.VehicleTypeNameAtCheckIn,
+
+                RegistrationNumber = session.RegistrationNumberAtCheckIn,
+                Brand = session.BrandAtCheckIn,
+                Model = session.ModelAtCheckIn,
+                Color = session.ColorAtCheckIn,
+                NumberOfWheels = session.NumberOfWheelsAtCheckIn,
+
                 ParkingSpotId = session.ParkingSpot?.Id ?? -1,
+
                 ArrivalTime = session.ArriveTime,
                 CheckOutTime = session.CheckOutTime ?? DateTime.UtcNow,
+
                 HourlyRateAtCheckIn = session.HourlyRateAtCheckIn,
                 TotalPrice = session.TotalPrice ?? 0,
                 AppliedDiscountPercentage = session.AppliedDiscountPercentage
@@ -435,7 +448,6 @@ namespace GarageV3.Controllers
 
             return RedirectToAction(nameof(Receipt), new { id });
         }
-
         private async Task<IEnumerable<SelectListItem>> BuildOwnedUnparkedVehiclesSelectListAsync(string userId)
         {
             var activeVehicleIds = _context.ParkingSessions

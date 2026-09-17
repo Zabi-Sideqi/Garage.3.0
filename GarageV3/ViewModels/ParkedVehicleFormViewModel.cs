@@ -11,6 +11,7 @@ namespace GarageV3.ViewModels
         public int? Id { get; set; } // null for Create, value for Edit
 
         [Required(ErrorMessage = "Registration Number is required.")]
+        [StringLength(20, ErrorMessage = "Registration Number cannot be longer than 20 characters.")]
         [Remote(action: "CheckDuplicate",
             controller: "MyVehicles",
             AdditionalFields = nameof(Id),

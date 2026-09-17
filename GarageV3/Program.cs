@@ -33,7 +33,7 @@ builder.Services.AddScoped<IVehicleHandler, VehicleHandler>();
 builder.Services.AddScoped<GarageFeeService>();
 
 builder.Services.Configure<GarageSettings>(
-    builder.Configuration.GetSection(GarageSettings.SectionName));
+builder.Configuration.GetSection(GarageSettings.SectionName));
 builder.Services.AddScoped<IParkingSessionService, ParkingSessionService>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 builder.Services.AddScoped<IParkingAllocationService, ParkingAllocationService>();
@@ -50,7 +50,7 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Error occured during Database migration.");
+        logger.LogError(ex, "Error occurred during database initialization.");
     }
 }
 

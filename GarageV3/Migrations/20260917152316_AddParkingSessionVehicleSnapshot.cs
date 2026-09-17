@@ -91,6 +91,24 @@ namespace GarageV3.Migrations
                 type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "");
+            migrationBuilder.Sql("""
+                UPDATE ps
+                SET
+                    ps.RegistrationNumberAtCheckIn = v.RegistrationNumber,
+                    ps.BrandAtCheckIn = v.Brand,
+                    ps.ModelAtCheckIn = v.Model,
+                    ps.ColorAtCheckIn = v.Color,
+                    ps.NumberOfWheelsAtCheckIn = v.NumberOfWheels,
+                    ps.OwnerIdAtCheckIn = v.OwnerId,
+                    ps.OwnerEmailAtCheckIn = ISNULL(u.Email, ''),
+                    ps.VehicleTypeNameAtCheckIn = ISNULL(vt.Name, ''),
+                    ps.VehicleTypeIconAtCheckIn = ISNULL(vt.Icon, ''),
+                    ps.RequiredSpotsAtCheckIn = ISNULL(vt.RequiredSpots, 0)
+                FROM ParkingSessions ps
+                INNER JOIN Vehicles v ON ps.VehicleId = v.Id
+                LEFT JOIN AspNetUsers u ON v.OwnerId = u.Id
+                LEFT JOIN VehicleTypes vt ON v.VehicleTypeRefId = vt.Id;
+                """);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_ParkingSessions_Vehicles_VehicleId",

@@ -9,7 +9,7 @@
         /// <summary>
         /// Number of currently active vehicles, grouped by vehicle type name.
         /// </summary>
-        public List<VehicleTypeCount> ActiveVehiclesByType { get; set; }
+        public List<VehicleTypeCount> ActiveVehiclesByType { get; set; } = new();
 
         public List<TopUserViewModel> TopUsers { get; set; } = new();
     }

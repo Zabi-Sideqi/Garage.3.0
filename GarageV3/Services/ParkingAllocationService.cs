@@ -18,6 +18,7 @@ namespace GarageV3.Services
         {
             var vehicle = await _context.Vehicles
                 .Include(v => v.VehicleTypeRef)
+                .Include(v => v.Owner)
                 .FirstOrDefaultAsync(v => v.Id == vehicleId);
 
             if (vehicle?.VehicleTypeRef == null)

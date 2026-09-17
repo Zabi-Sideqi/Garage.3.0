@@ -444,17 +444,6 @@ public class AdminVehiclesController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        bool hasHistory = await _context.ParkingSessions
-            .AnyAsync(ps => ps.VehicleId == id);
-
-        if (hasHistory)
-        {
-            TempData["ErrorMessage"] =
-                "Cannot delete: This vehicle has parking history.";
-
-            return RedirectToAction(nameof(Index));
-        }
-
         var vehicle = await _context.Vehicles.FindAsync(id);
         if (vehicle != null)
         {
