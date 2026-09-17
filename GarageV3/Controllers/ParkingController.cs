@@ -264,7 +264,7 @@ namespace GarageV3.Controllers
             var currentUserId = currentUser.Id;
             bool isAdmin = User.IsInRole("Admin");
             bool isOwner = session.Vehicle.Owner?.Id == currentUserId;
-            bool isPro = currentUser.IsProMember;
+            bool isPro = session.Vehicle.Owner?.IsProMember ?? false;
 
             if (!isAdmin && !isOwner)
             {

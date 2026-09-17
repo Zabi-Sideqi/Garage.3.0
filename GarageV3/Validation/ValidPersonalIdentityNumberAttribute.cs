@@ -6,24 +6,35 @@ namespace GarageV3.Validation;
 
 public class ValidPersonalIdentityNumberAttribute : ValidationAttribute
 {
-    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+    protected override ValidationResult? IsValid(
+    object? value,
+    ValidationContext validationContext)
     {
         if (value is not string pin || string.IsNullOrWhiteSpace(pin))
         {
             return new ValidationResult("Personal identity number is required.");
         }
 
-        string cleaned = pin.Replace("-", "").Replace("+", "").Trim();
+        string normalized = pin.Trim();
 
-        if (!Regex.IsMatch(cleaned, @"^\d{12}$"))
+        // Exact format: YYYYMMDD-XXXX
+        if (!Regex.IsMatch(normalized, @"^\d{8}-\d{4}$"))
         {
-            return new ValidationResult("Personal identity number must follow the format YYYYMMDD-XXXX or YYYYMMDDXXXX.");
+            return new ValidationResult(
+                "Personal identity number must follow the format YYYYMMDD-XXXX.");
         }
 
-        string datePart = cleaned[..8];
-        if (!DateTime.TryParseExact(datePart, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+        string datePart = normalized[..8];
+
+        if (!DateTime.TryParseExact(
+            datePart,
+            "yyyyMMdd",
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None,
+            out _))
         {
-            return new ValidationResult("Personal identity number must contain a valid date.");
+            return new ValidationResult(
+                "Personal identity number must contain a valid date.");
         }
 
         return ValidationResult.Success;

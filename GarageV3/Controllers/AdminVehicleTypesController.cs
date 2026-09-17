@@ -178,12 +178,27 @@ namespace GarageV3.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var vehicleTypeEntity = await _context.VehicleTypes.FindAsync(id);
+
             if (vehicleTypeEntity != null)
             {
+                bool isInUse = await _context.Vehicles
+                    .AnyAsync(v => v.VehicleTypeRefId == id);
+
+                if (isInUse)
+                {
+                    TempData["ErrorMessage"] =
+                        $"Cannot delete: Vehicle type '{vehicleTypeEntity.Name}' is currently in use.";
+
+                    return RedirectToAction(nameof(Index));
+                }
+
                 _context.VehicleTypes.Remove(vehicleTypeEntity);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = $"Vehicle type '{vehicleTypeEntity.Name}' was successfully deleted.";
+
+                TempData["SuccessMessage"] =
+                    $"Vehicle type '{vehicleTypeEntity.Name}' was successfully deleted.";
             }
+
             return RedirectToAction(nameof(Index));
         }
 

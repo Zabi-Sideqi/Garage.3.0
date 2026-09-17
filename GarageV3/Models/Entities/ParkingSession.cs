@@ -6,11 +6,26 @@ namespace GarageV3.Models.Entities
     {
         public int Id { get; set; }
 
-        public required int VehicleId { get; set; }
+        public int? VehicleId { get; set; }
         public Vehicle? Vehicle { get; set; }
+
+        public string OwnerIdAtCheckIn { get; set; } = string.Empty;
+        public string OwnerEmailAtCheckIn { get; set; } = string.Empty;
+
+        public string RegistrationNumberAtCheckIn { get; set; } = string.Empty;
+        public string VehicleTypeNameAtCheckIn { get; set; } = string.Empty;
+        public string VehicleTypeIconAtCheckIn { get; set; } = string.Empty;
+        public int RequiredSpotsAtCheckIn { get; set; }
+
+        public string BrandAtCheckIn { get; set; } = string.Empty;
+        public string ModelAtCheckIn { get; set; } = string.Empty;
+        public string ColorAtCheckIn { get; set; } = string.Empty;
+        public int NumberOfWheelsAtCheckIn { get; set; }
 
         public required int ParkingSpotId { get; set; }
         public ParkingSpot? ParkingSpot { get; set; }
+
+
 
         /// <summary>
         /// The actual spot(s) allocated to this session. For a normal vehicle

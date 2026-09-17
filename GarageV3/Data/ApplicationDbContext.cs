@@ -32,12 +32,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany()
             .HasForeignKey(v => v.VehicleTypeRefId)
             .OnDelete(DeleteBehavior.Restrict);
-
         builder.Entity<ParkingSession>()
             .HasOne(s => s.Vehicle)
             .WithMany()
             .HasForeignKey(s => s.VehicleId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
+
 
         builder.Entity<ParkingSession>()
             .HasOne(s => s.ParkingSpot)

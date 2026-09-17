@@ -43,7 +43,18 @@ namespace GarageV3.Services
                     VehicleId = vehicleId,
                     ParkingSpotId = plan[0].SpotId, // primary spot, kept for backward compatibility
                     ArriveTime = DateTime.UtcNow,
-                    HourlyRateAtCheckIn = hourlyRate
+                    HourlyRateAtCheckIn = hourlyRate,
+
+                    RegistrationNumberAtCheckIn = vehicle.RegistrationNumber,
+                    VehicleTypeNameAtCheckIn = vehicle.VehicleTypeRef?.Name ?? "Unknown",
+                    VehicleTypeIconAtCheckIn = vehicle.VehicleTypeRef?.Icon ?? string.Empty,
+                    RequiredSpotsAtCheckIn = vehicle.VehicleTypeRef?.RequiredSpots ?? 1,
+                    BrandAtCheckIn = vehicle.Brand,
+                    ModelAtCheckIn = vehicle.Model,
+                    ColorAtCheckIn = vehicle.Color,
+                    NumberOfWheelsAtCheckIn = vehicle.NumberOfWheels,
+                    OwnerIdAtCheckIn = vehicle.OwnerId,
+                    OwnerEmailAtCheckIn = vehicle.Owner?.Email ?? string.Empty
                 };
 
                 _context.ParkingSessions.Add(session);
